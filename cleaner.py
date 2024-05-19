@@ -34,7 +34,25 @@ def clean_data():
 
   data = data[["YEAR", "DRUG", "SEX", "AGE", "RACE", "HISPANIC ORIGIN", "ESTIMATE"]]
 
-  data.to_csv("cleaned_drug_overdose_deathrate_date.csv",index=False)
+  data.to_csv("cleaned_demographic_data",index=False)
+
+def clean_all_demographic_data():
+  data = pandas.read_csv('Datathon2024\Drug_overdose_death_rates__by_drug_type__sex__age__race__and_Hispanic_origin__United_States_20240518.csv')
+
+  data = data[data["STUB_NAME"] == "Total"]
+
+  data["DRUG"] = None
+
+  for idx, row in data.iterrows():
+    drug = row["PANEL"]
+    data.at[idx, "DRUG"] = drug_classification(drug)
+
+  for key in ["SEX", "RACE", "HISPANIC ORIGIN"]:
+    data[key] = None
+
+  data = data[["YEAR", "DRUG", "SEX", "AGE", "RACE", "HISPANIC ORIGIN", "ESTIMATE"]]
+
+  data.to_csv("cleaned_all_demographic_data.csv", index=False)
 
 def drug_classification(str):
   mapping = {
@@ -55,5 +73,16 @@ def tailor_data(file_path):
   data.fillna(value="Not Specified", inplace=True)
   data.to_csv(file_path, index=False)
 
-clean_data()
-tailor_data("cleaned_drug_overdose_deathrate_date.csv")
+def combine_data(file_path1, file_path2):
+  df1 = pandas.read_csv(file_path1)
+  df2 = pandas.read_csv(file_path2)
+  df = pandas.concat([df1, df2], ignore_index=True)
+  df.to_csv("cleaned_drug_overdose_deathrate_data.csv", index=False)
+
+# clean_all_demographic_data()
+#tailor_data("cleaned_all_demographic_data.csv")
+# clean_data()
+# tailor_data("cleaned_demographic_data.csv")
+# combine_data("cleaned_demographic_data.csv", "cleaned_all_demographic_data.csv")
+
+
